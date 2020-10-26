@@ -13,5 +13,7 @@ int main()
   cin >> dir;
   for (const filesystem::directory_entry& i : filesystem::directory_iterator(dir))
       cout << i.path().string() << endl;
+
+
   return 0;
 }
