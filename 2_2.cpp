@@ -12,6 +12,9 @@ int main()
   string dir;
   cin >> dir;
   for (const filesystem::directory_entry& i : filesystem::directory_iterator(dir))
+  {
+    if(!filesystem::is_directory(i))
       cout << i.path().string() << endl;
+  }
   return 0;
 }
