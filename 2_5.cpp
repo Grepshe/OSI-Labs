@@ -9,6 +9,15 @@
 
 using namespace std;
 
+time_t to_time_t(filesystem::file_time_type time_point)
+{
+    using namespace chrono;
+    auto system_clock_time_point = time_point_cast<
+        system_clock::duration>(time_point -
+                                filesystem::file_time_type::clock::now() + system_clock::now());
+    return system_clock::to_time_t(system_clock_time_point);
+}
+
 int main()
 {
     setlocale(LC_ALL, "Russian");
@@ -29,7 +38,8 @@ int main()
     //Will be standart in C++20
     for (auto &i : vec)
     {
-        cout << i.second << endl;
+        auto tim = to_time_t(i.first);
+        cout << i.second << " " << std::asctime(localtime(&tim)) << endl;
     }
     return 0;
 }
