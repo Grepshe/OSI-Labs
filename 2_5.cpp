@@ -4,23 +4,10 @@
 #include <locale.h>
 #include <cstdlib>
 #include <string>
+#include <chrono>
+#include <ctime>
 
 using namespace std;
-
-void perms_write(filesystem::perms p)
-{
-    namespace fs = filesystem;
-    std::cout << ((p & fs::perms::owner_read) != fs::perms::none ? "r" : "-")
-              << ((p & fs::perms::owner_write) != fs::perms::none ? "w" : "-")
-              << ((p & fs::perms::owner_exec) != fs::perms::none ? "x" : "-")
-              << ((p & fs::perms::group_read) != fs::perms::none ? "r" : "-")
-              << ((p & fs::perms::group_write) != fs::perms::none ? "w" : "-")
-              << ((p & fs::perms::group_exec) != fs::perms::none ? "x" : "-")
-              << ((p & fs::perms::others_read) != fs::perms::none ? "r" : "-")
-              << ((p & fs::perms::others_write) != fs::perms::none ? "w" : "-")
-              << ((p & fs::perms::others_exec) != fs::perms::none ? "x" : "-")
-              << '\n';
-}
 
 int main()
 {
@@ -28,10 +15,21 @@ int main()
     system("chcp 1251");
     string dir;
     cin >> dir;
-    filesystem::path fs_path(dir);
-    filesystem::create_symlink(fs_path, "my_symlink");
-    auto perm = filesystem::status("my_symlink").permissions();
-    perms_write(perm);
-
+    vector<pair<filesystem::file_time_type, string>> vec;
+    if (dir == "NONE")
+        dir = filesystem::current_path().string();
+    for (const filesystem::directory_entry &i : filesystem::directory_iterator(dir))
+    {
+        if (!filesystem::is_directory(i))
+        {
+            vec.push_back({filesystem::last_write_time(i.path()), i.path().string()});
+        }
+    }
+    sort(vec.begin(), vec.end());
+    //Will be standart in C++20
+    for (auto &i : vec)
+    {
+        cout << i.second << endl;
+    }
     return 0;
 }
