@@ -4,41 +4,54 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+
+int counter(int n)
+{
+    if (n == 1)
+        return 1;
+    return n * (counter(n - 1) + 1);
+}
+
 int main(int argc, char **argv)
 {
+    char to_print[500];
+    int pos = 0;
     int timer = 15;
     int is_main = 1;
     int init = 5;
     int n = init;
-    while(n)
+    while (n)
     {
         n--;
-        if(!fork())
+        pid_t fork_pid = fork();
+        if (!fork_pid)
         {
+            pos = 0;
+            to_print[0] = 0;
             is_main = 0;
             timer--;
             init--;
             n = init;
-            printf("Posnanskiy Grigoriy Dmitrievich, PID: %ld, PPID: %ld \n", (long)getpid(), (long)getppid());
+        }
+        else
+        {
+            pos += sprintf(to_print + pos, "<%ld>", (long)fork_pid);
         }
     }
-    
-    if(is_main)
+
+    printf("%ld : %s\n", (long)getpid(), to_print);
+
+    if (is_main)
     {
         sleep(2);
         system("pstree -p");
-    }else
+        printf("Posnanskiy Grigoriy Dmitrievich, %d processes\n", counter(init));
+        sleep(timer - 2);
+    }
+    else
     {
         sleep(timer);
     }
-    
-
-    /*n = init;
-    while(n)
-    {
-        n--;
-        wait(NULL);
-    }*/
 
     return 0;
 }
